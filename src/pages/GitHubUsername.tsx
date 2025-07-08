@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, Loader2, AlertCircle, ArrowRight, Github } from 'lucide-react';
@@ -172,9 +171,9 @@ const GitHubUsername = () => {
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center px-4">
         <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8 text-center">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Setup Complete!</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Username Saved!</h1>
           <p className="text-gray-600 mb-6">
-            Your GitHub username has been saved and repository creation has been initiated.
+            You've been invited for access to the boilerplate repo! Note: The invite will be via the linked GitHub email of your username's account.
           </p>
           
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -185,9 +184,9 @@ const GitHubUsername = () => {
           <div className="bg-blue-50 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-blue-900 mb-2">What's Next?</h3>
             <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Your private repository will be created shortly</li>
+              <li>• You've been sent setup instructions & docs (to the same email as your first email, for the username input form)</li>
               <li>• You'll receive an email invitation to collaborate</li>
-              <li>• The repository will contain your discounted SaaS template</li>
+              <li>• Enjoy your prod-ready SaaS boilerplate, always feel free to connect and update on shipping progress!</li>
             </ul>
           </div>
 
