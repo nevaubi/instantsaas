@@ -10,25 +10,19 @@ const Footer = () => {
             <span className="text-2xl font-bold text-brand-orange">
               InstantSaaS
             </span>
-            <p className="text-brand-dark-gray mt-1">Launch your SaaS in minutes, not months.</p>
+            <p className="text-brand-dark-gray mt-1">Top-Tier Quality. Industry Disrupting Price.</p>
           </div>
           
           <div className="flex items-center space-x-6">
-            <a href="#" className="text-brand-dark-gray hover:text-brand-orange transition-colors">
+            <a href="https://x.com/itsfiras1" target="_blank" rel="noopener noreferrer" className="text-brand-dark-gray hover:text-brand-orange transition-colors">
               Twitter
-            </a>
-            <a href="#" className="text-brand-dark-gray hover:text-brand-orange transition-colors">
-              GitHub
-            </a>
-            <a href="#" className="text-brand-dark-gray hover:text-brand-orange transition-colors">
-              Discord
             </a>
           </div>
         </div>
         
         <div className="mt-8 pt-8 border-t border-gray-200 text-center">
           <p className="text-gray-500">
-            © 2024 InstantSaaS. All rights reserved. Built for developers, by developers.
+            © 2025 InstantSaaS. All rights reserved. Built for developers, by developers.
           </p>
         </div>
       </div>
