@@ -43,7 +43,7 @@ serve(async (req) => {
       const session = event.data.object;
       console.log('Checkout session completed:', session.id);
 
-      // Get the order from our database
+      // Get the order from our database using the session ID
       const { data: order, error: orderError } = await supabaseClient
         .from('fullprice_orders')
         .select('*')
@@ -55,10 +55,13 @@ serve(async (req) => {
         return new Response('Order not found', { status: 404, headers: corsHeaders });
       }
 
-      // Update the order status
+      // Update the order status with email from Stripe
+      const customerEmail = session.customer_details?.email || session.customer_email || '';
+      
       const { error: updateError } = await supabaseClient
         .from('fullprice_orders')
         .update({
+          email: customerEmail,
           subscribe_status: 'completed',
           stripe_customer_id: session.customer,
           amount: session.amount_total / 100, // Convert from cents
@@ -76,7 +79,7 @@ serve(async (req) => {
       const zapierWebhookUrl = 'https://hooks.zapier.com/hooks/catch/23353457/u3fidh2/';
       
       const zapierData = {
-        email: order.email,
+        email: customerEmail,
         order_id: order.id,
         tier: 'fullprice',
         amount: session.amount_total / 100,

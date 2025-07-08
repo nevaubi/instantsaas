@@ -14,40 +14,32 @@ serve(async (req) => {
   }
 
   try {
-    const { email } = await req.json();
-    console.log('Creating full-price checkout for email:', email);
-
-    if (!email) {
-      throw new Error('Email is required');
-    }
+    console.log('Creating full-price checkout without upfront email');
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    // Create or update full-price order record
+    // Create placeholder full-price order record without email
     const { data: orderData, error: orderError } = await supabaseClient
       .from('fullprice_orders')
-      .upsert({
-        email,
+      .insert({
+        email: '', // Placeholder - will be updated after Stripe checkout
         amount: 69.00,
         currency: 'usd',
         subscribe_status: 'pending',
         delivery_status: 'pending'
-      }, {
-        onConflict: 'email',
-        ignoreDuplicates: false
       })
       .select()
       .single();
 
     if (orderError) {
-      console.error('Error creating/updating full-price order:', orderError);
+      console.error('Error creating placeholder full-price order:', orderError);
       throw orderError;
     }
 
-    console.log('Full-price order created/updated:', orderData);
+    console.log('Placeholder full-price order created:', orderData);
 
     // Create Stripe checkout session
     const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
@@ -56,11 +48,10 @@ serve(async (req) => {
     }
 
     const checkoutData = {
-      success_url: `${req.headers.get('origin')}/checkout-success-fullprice?email=${encodeURIComponent(email)}&order_id=${orderData.id}`,
+      success_url: `${req.headers.get('origin')}/checkout-success-fullprice?order_id=${orderData.id}`,
       cancel_url: `${req.headers.get('origin')}/?canceled=true`,
       payment_method_types: ['card'],
       mode: 'payment',
-      customer_email: email,
       line_items: [
         {
           price: 'price_1QVrdsEecc1GnxaLVgFklE8r', // Using same price ID for testing as requested
@@ -68,7 +59,6 @@ serve(async (req) => {
         },
       ],
       metadata: {
-        email: email,
         order_id: orderData.id,
         tier: 'fullprice'
       },

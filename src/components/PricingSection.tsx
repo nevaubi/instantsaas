@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Check, Star, Zap } from 'lucide-react';
 import DiscountModal from './DiscountModal';
@@ -21,35 +22,13 @@ const PricingSection = () => {
   ];
 
   const handleFullPriceCheckout = async () => {
-    const email = prompt('Please enter your email address:');
-    
-    if (!email) {
-      toast({
-        title: "Email Required",
-        description: "Please enter your email address to proceed with checkout.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsFullPriceLoading(true);
     
     try {
-      console.log('Starting full-price checkout for:', email);
+      console.log('Starting full-price checkout without email prompt');
       
       const { data, error } = await supabase.functions.invoke('create-fullprice-checkout', {
-        body: { email }
+        body: {}
       });
 
       if (error) {

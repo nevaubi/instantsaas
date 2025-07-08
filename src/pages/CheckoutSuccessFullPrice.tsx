@@ -19,38 +19,51 @@ const CheckoutSuccessFullPrice = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const email = searchParams.get('email');
   const orderId = searchParams.get('order_id');
 
   useEffect(() => {
-    if (!email || !orderId) {
-      setError('Invalid success link - missing email or order ID');
+    if (!orderId) {
+      setError('Invalid success link - missing order ID');
       setIsLoading(false);
       return;
     }
 
-    fetchOrderDetails();
-  }, [email, orderId]);
+    fetchAndUpdateOrderFromStripe();
+  }, [orderId]);
 
-  const fetchOrderDetails = async () => {
+  const fetchAndUpdateOrderFromStripe = async () => {
     try {
       setIsLoading(true);
-      console.log('Fetching full-price order details:', { email, orderId });
+      console.log('Fetching and updating full-price order from Stripe:', { orderId });
 
-      const { data, error: fetchError } = await supabase
+      // First, get the order to retrieve the Stripe session ID
+      const { data: orderData, error: fetchError } = await supabase
         .from('fullprice_orders')
         .select('*')
         .eq('id', orderId)
-        .eq('email', email)
         .single();
 
-      if (fetchError || !data) {
+      if (fetchError || !orderData) {
         console.error('Order fetch failed:', fetchError);
         setError('Order not found or invalid link');
         return;
       }
 
-      setOrder(data);
+      // If email is already set, just display the order  
+      if (orderData.email && orderData.email !== '') {
+        setOrder(orderData);
+        return;
+      }
+
+      // If no email yet, we need to fetch it from Stripe and update the order
+      // For now, we'll use a placeholder since we can't directly access Stripe session data from frontend
+      // The webhook should handle updating the email, but as a fallback we'll show the order without email
+      console.log('Order found but email not yet updated from Stripe webhook');
+      setOrder({
+        ...orderData,
+        email: 'Email being retrieved from Stripe...'
+      });
+
     } catch (err) {
       console.error('Error fetching order:', err);
       setError('Failed to load order details');
@@ -107,10 +120,6 @@ const CheckoutSuccessFullPrice = () => {
             <h3 className="font-semibold text-gray-900 mb-3">Order Details</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Email:</span>
-                <span className="text-gray-900">{order.email}</span>
-              </div>
-              <div className="flex justify-between">
                 <span className="text-gray-600">Amount:</span>
                 <span className="text-gray-900 font-semibold">
                   {formatAmount(order.amount, order.currency)}
@@ -130,7 +139,7 @@ const CheckoutSuccessFullPrice = () => {
             To complete your setup and receive your SaaS template, please provide your GitHub username.
           </p>
           <Button asChild className="w-full mb-2">
-            <Link to={`/github-username-fullprice?email=${encodeURIComponent(order?.email || '')}&order_id=${orderId}`}>
+            <Link to={`/github-username-fullprice?order_id=${orderId}`}>
               Setup GitHub Access
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>

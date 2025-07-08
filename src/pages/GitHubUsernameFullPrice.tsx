@@ -26,29 +26,27 @@ const GitHubUsernameFullPrice = () => {
   const [error, setError] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
 
-  const email = searchParams.get('email');
   const orderId = searchParams.get('order_id');
 
   useEffect(() => {
-    if (!email || !orderId) {
-      setError('Invalid link - missing email or order ID');
+    if (!orderId) {
+      setError('Invalid link - missing order ID');
       setIsLoading(false);
       return;
     }
 
     verifyOrder();
-  }, [email, orderId]);
+  }, [orderId]);
 
   const verifyOrder = async () => {
     try {
       setIsLoading(true);
-      console.log('Verifying full-price order:', { email, orderId });
+      console.log('Verifying full-price order:', { orderId });
 
       const { data, error: fetchError } = await supabase
         .from('fullprice_orders')
         .select('*')
         .eq('id', orderId)
-        .eq('email', email)
         .single();
 
       if (fetchError || !data) {
@@ -97,7 +95,7 @@ const GitHubUsernameFullPrice = () => {
 
     setIsSubmitting(true);
     try {
-      console.log('Submitting GitHub username for full-price order:', { email, orderId, githubUsername });
+      console.log('Submitting GitHub username for full-price order:', { orderId, githubUsername });
       
       // Update the order with GitHub username
       const { data, error } = await supabase
@@ -108,7 +106,6 @@ const GitHubUsernameFullPrice = () => {
           updated_at: new Date().toISOString()
         })
         .eq('id', orderId)
-        .eq('email', email)
         .select()
         .single();
 
@@ -223,10 +220,12 @@ const GitHubUsernameFullPrice = () => {
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-gray-900 mb-3">Order Details</h3>
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Email:</span>
-                <span className="text-gray-900">{order.email}</span>
-              </div>
+              {order.email && order.email !== '' && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Email:</span>
+                  <span className="text-gray-900">{order.email}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-600">Amount:</span>
                 <span className="text-gray-900 font-semibold">
@@ -283,10 +282,10 @@ const GitHubUsernameFullPrice = () => {
           <Link to="/" className="text-sm text-gray-500 hover:text-gray-700">
             ← Return to Homepage
           </Link>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
-export default GitHubUsernameFullPrice;
+  export default GitHubUsernameFullPrice;
