@@ -14,7 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      discounted_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          stripe_checkout_session_id: string | null
+          stripe_customer_id: string | null
+          subscribe_date: string
+          subscribe_status: string
+          twitter_username: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          subscribe_date?: string
+          subscribe_status?: string
+          twitter_username?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          subscribe_date?: string
+          subscribe_status?: string
+          twitter_username?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
