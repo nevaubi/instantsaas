@@ -310,7 +310,8 @@ const GitHubUsernameFullPrice = () => {
           </Link>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
 export default GitHubUsernameFullPrice;
