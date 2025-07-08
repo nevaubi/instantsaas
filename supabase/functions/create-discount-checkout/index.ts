@@ -58,7 +58,7 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
     
-    // Create checkout session with the specific price ID
+    // Create checkout session with the specific price ID and promotion codes enabled
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -69,6 +69,7 @@ serve(async (req) => {
         },
       ],
       mode: "payment", // One-time payment for the discounted product
+      allow_promotion_codes: true, // Enable promotion code input field
       success_url: `${origin}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/checkout-cancel`,
       metadata: {
@@ -77,7 +78,7 @@ serve(async (req) => {
       }
     });
 
-    logStep("Created Stripe checkout session", { sessionId: session.id });
+    logStep("Created Stripe checkout session with promotion codes enabled", { sessionId: session.id });
 
     // Update the discounted_users record with checkout session ID
     const { error: updateError } = await supabaseClient
