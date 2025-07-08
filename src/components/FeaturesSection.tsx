@@ -49,15 +49,15 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+    <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-brand-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6">
-            Everything You Need to 
-            <span className="text-blue-600"> Launch Fast</span>
+          <h2 className="text-3xl md:text-5xl font-bold text-brand-dark-gray mb-6">
+            Everything You Need to
+            <span className="text-brand-orange"> Launch Fast</span>
           </h2>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-            Stop wasting weeks on boilerplate code. Our production-ready foundation includes all the essentials 
+          <p className="text-xl text-brand-dark-gray max-w-3xl mx-auto">
+            Stop wasting weeks on boilerplate code. Our production-ready foundation includes all the essentials
             to get your SaaS from idea to paying customers.
           </p>
         </div>
@@ -68,13 +68,13 @@ const FeaturesSection = () => {
             return (
               <div
                 key={index}
-                className="group bg-white border border-slate-200 rounded-2xl p-8 hover:border-slate-300 hover:shadow-lg transition-all duration-300"
+                className="group bg-brand-white border border-gray-200 rounded-2xl p-8 hover:border-brand-orange hover:shadow-lg transition-all duration-300"
               >
                 <div className={`w-16 h-16 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   <IconComponent className={`h-8 w-8 ${feature.color}`} />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-4">{feature.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+                <h3 className="text-2xl font-bold text-brand-dark-gray mb-4">{feature.title}</h3>
+                <p className="text-brand-dark-gray leading-relaxed">{feature.description}</p>
               </div>
             );
           })}
