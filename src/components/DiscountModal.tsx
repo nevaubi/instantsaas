@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -89,49 +90,68 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
             </h3>
           </div>
 
-          {/* Twitter Follow Button */}
-          <div className="flex justify-center w-full">
-            <div 
-              dangerouslySetInnerHTML={{
-                __html: `<a href="https://twitter.com/itsfiras1" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @itsfiras1</a>`
-              }}
-            />
+          {/* Step 1: Twitter Follow Button */}
+          <div className="w-full relative">
+            {/* Step 1 Badge */}
+            <div className="flex items-center justify-center mb-3">
+              <div className="w-8 h-8 bg-brand-orange rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">1</span>
+              </div>
+            </div>
+            
+            <div className="flex justify-center w-full">
+              <div 
+                dangerouslySetInnerHTML={{
+                  __html: `<a href="https://twitter.com/itsfiras1" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @itsfiras1</a>`
+                }}
+              />
+            </div>
           </div>
 
-          {/* Consent Checkbox */}
-          <div className="flex items-start space-x-3 w-full">
-            <Checkbox
-              id="consent"
-              checked={consentChecked}
-              onCheckedChange={handleConsentChange}
-              className="mt-1"
-            />
-            <label 
-              htmlFor="consent" 
-              className="text-sm text-brand-dark-gray leading-relaxed cursor-pointer flex-1"
+          {/* Step 2: Consent and Login */}
+          <div className="w-full space-y-4">
+            {/* Step 2 Badge */}
+            <div className="flex items-center justify-center">
+              <div className="w-8 h-8 bg-brand-orange rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">2</span>
+              </div>
+            </div>
+
+            {/* Consent Checkbox */}
+            <div className="flex items-start space-x-3 w-full">
+              <Checkbox
+                id="consent"
+                checked={consentChecked}
+                onCheckedChange={handleConsentChange}
+                className="mt-1"
+              />
+              <label 
+                htmlFor="consent" 
+                className="text-sm text-brand-dark-gray leading-relaxed cursor-pointer flex-1"
+              >
+                I agree to add my linked X (Twitter) email address to Nevaubi's newsletter mailing list.
+              </label>
+            </div>
+
+            {/* Twitter Login Button */}
+            <Button 
+              onClick={handleTwitterLogin}
+              disabled={!consentChecked || isLoading}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-semibold flex items-center justify-center space-x-2"
             >
-              I agree to add my linked X (Twitter) email address to Nevaubi's newsletter mailing list.
-            </label>
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>Authenticating...</span>
+                </>
+              ) : (
+                <>
+                  <Twitter className="h-5 w-5" />
+                  <span>Login with Twitter</span>
+                </>
+              )}
+            </Button>
           </div>
-
-          {/* Twitter Login Button */}
-          <Button 
-            onClick={handleTwitterLogin}
-            disabled={!consentChecked || isLoading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-semibold flex items-center justify-center space-x-2"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <span>Authenticating...</span>
-              </>
-            ) : (
-              <>
-                <Twitter className="h-5 w-5" />
-                <span>Login with Twitter</span>
-              </>
-            )}
-          </Button>
 
           {/* Footer Text */}
           <p className="text-xs text-gray-600 text-center max-w-sm">
