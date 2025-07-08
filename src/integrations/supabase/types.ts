@@ -16,8 +16,12 @@ export type Database = {
     Tables: {
       discounted_users: {
         Row: {
+          amount: number | null
           created_at: string
+          currency: string | null
+          delivery_status: string | null
           email: string
+          github_username: string | null
           id: string
           stripe_checkout_session_id: string | null
           stripe_customer_id: string | null
@@ -28,8 +32,12 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          amount?: number | null
           created_at?: string
+          currency?: string | null
+          delivery_status?: string | null
           email: string
+          github_username?: string | null
           id?: string
           stripe_checkout_session_id?: string | null
           stripe_customer_id?: string | null
@@ -40,8 +48,12 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          amount?: number | null
           created_at?: string
+          currency?: string | null
+          delivery_status?: string | null
           email?: string
+          github_username?: string | null
           id?: string
           stripe_checkout_session_id?: string | null
           stripe_customer_id?: string | null
