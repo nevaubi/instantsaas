@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -20,12 +19,19 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Inter', 'system-ui', 'sans-serif'],
+				sans: ["Bricolage Grotesque", "Inter", "system-ui", "sans-serif"],
+				grotesque: ["Bricolage Grotesque", "sans-serif"],
 			},
 			colors: {
-				border: 'hsl(var(--border))',
-				input: 'hsl(var(--input))',
-				ring: 'hsl(var(--ring))',
+				"brand-white": "#FFFFFF",
+				"brand-orange": "#F28C38",
+				"brand-dark-gray": "#1A1A1A",
+				"brand-light-blue": "#4A90E2",
+				"brand-cta-orange": "#ff6223",
+				"brand-highlight": "#fed7aa",
+				border: "hsl(var(--border))",
+				input: "hsl(var(--input))",
+				ring: "hsl(var(--ring))",
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
