@@ -2,6 +2,7 @@
 import React from 'react';
 import Navigation from '../components/Navigation';
 import HeroSection from '../components/HeroSection';
+import TwoStepsSection from '../components/TwoStepsSection';
 import FeaturesSection from '../components/FeaturesSection';
 import TechStackSection from '../components/TechStackSection';
 import PricingSection from '../components/PricingSection';
@@ -11,9 +12,10 @@ import Footer from '../components/Footer';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-brand-white">
       <Navigation />
       <HeroSection />
+      <TwoStepsSection />
       <FeaturesSection />
       <TechStackSection />
       <PricingSection />
