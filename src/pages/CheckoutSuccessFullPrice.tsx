@@ -19,54 +19,46 @@ const CheckoutSuccessFullPrice = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const orderId = searchParams.get('order_id');
+  const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
-    if (!orderId) {
-      setError('Invalid success link - missing order ID');
+    if (!sessionId) {
+      setError('Invalid success link - missing session ID');
       setIsLoading(false);
       return;
     }
 
-    fetchAndUpdateOrderFromStripe();
-  }, [orderId]);
+    handlePaymentSuccess();
+  }, [sessionId]);
 
-  const fetchAndUpdateOrderFromStripe = async () => {
+  const handlePaymentSuccess = async () => {
     try {
       setIsLoading(true);
-      console.log('Fetching and updating full-price order from Stripe:', { orderId });
+      console.log('Processing full-price payment success for session:', sessionId);
 
-      // First, get the order to retrieve the Stripe session ID
-      const { data: orderData, error: fetchError } = await supabase
-        .from('fullprice_orders')
-        .select('*')
-        .eq('id', orderId)
-        .single();
-
-      if (fetchError || !orderData) {
-        console.error('Order fetch failed:', fetchError);
-        setError('Order not found or invalid link');
-        return;
-      }
-
-      // If email is already set, just display the order  
-      if (orderData.email && orderData.email !== '') {
-        setOrder(orderData);
-        return;
-      }
-
-      // If no email yet, we need to fetch it from Stripe and update the order
-      // For now, we'll use a placeholder since we can't directly access Stripe session data from frontend
-      // The webhook should handle updating the email, but as a fallback we'll show the order without email
-      console.log('Order found but email not yet updated from Stripe webhook');
-      setOrder({
-        ...orderData,
-        email: 'Email being retrieved from Stripe...'
+      // Call our edge function to handle the payment success
+      const { data, error: functionError } = await supabase.functions.invoke('handle-fullprice-success', {
+        body: { sessionId }
       });
 
+      if (functionError) {
+        console.error('Edge function error:', functionError);
+        setError('Failed to process payment success');
+        return;
+      }
+
+      if (data?.error) {
+        console.error('Payment processing error:', data.error);
+        setError(data.error);
+        return;
+      }
+
+      console.log('Payment processed successfully:', data);
+      setOrder(data.order);
+
     } catch (err) {
-      console.error('Error fetching order:', err);
-      setError('Failed to load order details');
+      console.error('Error processing payment success:', err);
+      setError('Failed to process payment');
     } finally {
       setIsLoading(false);
     }
@@ -84,8 +76,8 @@ const CheckoutSuccessFullPrice = () => {
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading your order...</h2>
-          <p className="text-gray-600">Please wait while we confirm your purchase</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Processing your payment...</h2>
+          <p className="text-gray-600">Please wait while we confirm your purchase and set up your template delivery</p>
         </div>
       </div>
     );
@@ -112,7 +104,7 @@ const CheckoutSuccessFullPrice = () => {
         <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Payment Successful!</h1>
         <p className="text-gray-600 mb-6">
-          Thank you for your purchase! Your payment has been processed successfully.
+          Thank you for your purchase! Your payment has been processed successfully and template delivery has been initiated.
         </p>
 
         {order && (
@@ -120,10 +112,18 @@ const CheckoutSuccessFullPrice = () => {
             <h3 className="font-semibold text-gray-900 mb-3">Order Details</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
+                <span className="text-gray-600">Email:</span>
+                <span className="text-gray-900 font-semibold">{order.email}</span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-gray-600">Amount:</span>
                 <span className="text-gray-900 font-semibold">
                   {formatAmount(order.amount, order.currency)}
                 </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Status:</span>
+                <span className="text-green-600 font-semibold">{order.delivery_status}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Order ID:</span>
@@ -139,7 +139,7 @@ const CheckoutSuccessFullPrice = () => {
             To complete your setup and receive your SaaS template, please provide your GitHub username.
           </p>
           <Button asChild className="w-full mb-2">
-            <Link to={`/github-username-fullprice?order_id=${orderId}`}>
+            <Link to={`/github-username-fullprice?order_id=${order?.id}`}>
               Setup GitHub Access
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>

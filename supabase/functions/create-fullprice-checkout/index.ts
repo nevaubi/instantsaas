@@ -37,27 +37,7 @@ serve(async (req) => {
       auth: { persistSession: false }
     });
 
-    // Create placeholder full-price order record without email
-    const { data: orderData, error: orderError } = await supabaseClient
-      .from('fullprice_orders')
-      .insert({
-        email: 'pending', // Placeholder - will be updated after Stripe checkout
-        amount: 69.00,
-        currency: 'usd',
-        subscribe_status: 'pending',
-        delivery_status: 'pending'
-      })
-      .select()
-      .single();
-
-    if (orderError) {
-      console.error('Error creating placeholder full-price order:', orderError);
-      throw orderError;
-    }
-
-    console.log('Placeholder full-price order created:', orderData);
-
-    // Create Stripe checkout session using SDK
+    // Create Stripe checkout session - let Stripe collect the email
     const origin = req.headers.get('origin') || 'http://localhost:3000';
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -67,29 +47,29 @@ serve(async (req) => {
         },
       ],
       mode: 'payment',
-      success_url: `${origin}/checkout-success-fullprice?order_id=${orderData.id}`,
+      success_url: `${origin}/checkout-success-fullprice?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/?canceled=true`,
-      metadata: {
-        order_id: orderData.id,
-        tier: 'fullprice'
-      },
     });
 
-    console.log('Stripe checkout session created successfully:', session.id);
+    console.log('Created Stripe session:', session.id);
 
-    // Update order with Stripe session ID
-    const { error: updateError } = await supabaseClient
+    // Store initial order in database with placeholder email
+    const { error: dbError } = await supabaseClient
       .from('fullprice_orders')
-      .update({
+      .insert({
+        email: 'pending', // Will be updated after payment with actual email
         stripe_checkout_session_id: session.id,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', orderData.id);
+        amount: 69.00,
+        currency: 'usd',
+        delivery_status: 'pending',
+      });
 
-    if (updateError) {
-      console.error('Error updating order with session ID:', updateError);
-      // Don't throw here as the session was created successfully
+    if (dbError) {
+      console.error('Database error:', dbError);
+      throw new Error('Failed to store order');
     }
+
+    console.log('Order stored in database');
 
     return new Response(
       JSON.stringify({ url: session.url, sessionId: session.id }),
