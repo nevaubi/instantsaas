@@ -15,7 +15,6 @@ interface DiscountModalProps {
 const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [consentChecked, setConsentChecked] = useState(false);
-  const [authState, setAuthState] = useState<'idle' | 'authenticating' | 'processing' | 'redirecting'>('idle');
   const { toast } = useToast();
 
   const handleConsentChange = (checked: boolean | "indeterminate") => {
@@ -29,67 +28,6 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
     }
   }, [open]);
 
-  // Listen for auth state changes after Twitter login
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state change:', event, session?.user?.email);
-      
-      if (event === 'SIGNED_IN' && session?.user && authState === 'authenticating') {
-        setAuthState('processing');
-        await processDiscountFlow(session.user);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [authState]);
-
-  const processDiscountFlow = async (user: any) => {
-    try {
-      console.log('Processing discount flow for user:', user.email);
-      
-      // Step 1: Record the user in discounted_users table
-      const { data: authData, error: authError } = await supabase.functions.invoke('process-discount-auth');
-      
-      if (authError) {
-        console.error('Error recording discount user:', authError);
-        throw new Error('Failed to record discount user');
-      }
-
-      console.log('User recorded successfully:', authData);
-
-      // Step 2: Create Stripe checkout session
-      setAuthState('redirecting');
-      const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-discount-checkout');
-      
-      if (checkoutError) {
-        console.error('Error creating checkout session:', checkoutError);
-        throw new Error('Failed to create checkout session');
-      }
-
-      console.log('Checkout session created:', checkoutData);
-
-      // Close modal and redirect to Stripe
-      onOpenChange(false);
-      
-      if (checkoutData?.url) {
-        // Open Stripe checkout in the same tab
-        window.location.href = checkoutData.url;
-      } else {
-        throw new Error('No checkout URL received');
-      }
-
-    } catch (error) {
-      console.error('Error in discount flow:', error);
-      setAuthState('idle');
-      setIsLoading(false);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "An unexpected error occurred",
-        variant: "destructive"
-      });
-    }
-  };
-
   const handleTwitterLogin = async () => {
     if (!consentChecked) {
       toast({
@@ -101,9 +39,12 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
     }
 
     setIsLoading(true);
-    setAuthState('authenticating');
     
     try {
+      // Set flag to indicate this is a discount flow
+      localStorage.setItem('discount_flow_active', 'true');
+      
+      console.log('Starting Twitter OAuth for discount flow');
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'twitter',
         options: {
@@ -113,17 +54,20 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
 
       if (error) {
         console.error('Twitter OAuth error:', error);
-        setAuthState('idle');
+        localStorage.removeItem('discount_flow_active');
         setIsLoading(false);
         toast({
           title: "Authentication Error",
           description: "Failed to authenticate with Twitter. Please try again.",
           variant: "destructive"
         });
+      } else {
+        // Close modal immediately since we're redirecting
+        onOpenChange(false);
       }
     } catch (error) {
       console.error('Unexpected error:', error);
-      setAuthState('idle');
+      localStorage.removeItem('discount_flow_active');
       setIsLoading(false);
       toast({
         title: "Error",
@@ -133,20 +77,7 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
     }
   };
 
-  const getButtonText = () => {
-    switch (authState) {
-      case 'authenticating':
-        return 'Authenticating...';
-      case 'processing':
-        return 'Processing...';
-      case 'redirecting':
-        return 'Redirecting to checkout...';
-      default:
-        return 'Login with Twitter';
-    }
-  };
-
-  const isDisabled = !consentChecked || isLoading || authState !== 'idle';
+  const isDisabled = !consentChecked || isLoading;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -219,10 +150,10 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
               disabled={isDisabled}
               className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-semibold flex items-center justify-center space-x-2"
             >
-              {isLoading || authState !== 'idle' ? (
+              {isLoading ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>{getButtonText()}</span>
+                  <span>Authenticating...</span>
                 </>
               ) : (
                 <>
