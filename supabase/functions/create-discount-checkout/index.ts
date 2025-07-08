@@ -58,7 +58,28 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
     
-    // Create checkout session with the specific price ID and promotion codes enabled
+    // Look up the AUTH30OFF promotion code
+    let discounts = [];
+    try {
+      const promotionCodes = await stripe.promotionCodes.list({
+        code: "AUTH30OFF",
+        active: true,
+        limit: 1,
+      });
+      
+      if (promotionCodes.data.length > 0) {
+        const promoCode = promotionCodes.data[0];
+        discounts = [{ promotion_code: promoCode.id }];
+        logStep("Found AUTH30OFF promotion code", { promoCodeId: promoCode.id });
+      } else {
+        logStep("AUTH30OFF promotion code not found or inactive");
+      }
+    } catch (error) {
+      logStep("Error looking up promotion code", { error: error.message });
+      // Continue without the promotion code if lookup fails
+    }
+    
+    // Create checkout session with the specific price ID and auto-applied promotion code
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -69,7 +90,7 @@ serve(async (req) => {
         },
       ],
       mode: "payment", // One-time payment for the discounted product
-      allow_promotion_codes: true, // Enable promotion code input field
+      discounts: discounts, // Auto-apply AUTH30OFF promotion code if found
       success_url: `${origin}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/checkout-cancel`,
       metadata: {
@@ -78,7 +99,10 @@ serve(async (req) => {
       }
     });
 
-    logStep("Created Stripe checkout session with promotion codes enabled", { sessionId: session.id });
+    logStep("Created Stripe checkout session with auto-applied promotion code", { 
+      sessionId: session.id, 
+      discountsApplied: discounts.length > 0 
+    });
 
     // Update the discounted_users record with checkout session ID
     const { error: updateError } = await supabaseClient
