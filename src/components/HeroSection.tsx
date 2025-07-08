@@ -13,6 +13,13 @@ const HeroSection = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-brand-white">
       {/* Simple background pattern */}
@@ -60,7 +67,10 @@ const HeroSection = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8 md:mb-10">
             <div className="relative">
               <div className="absolute top-1 left-1 w-full h-full bg-brand-dark-gray rounded-lg -z-10"></div>
-              <button className="btn-primary px-8 py-4 rounded-lg font-semibold text-lg flex items-center space-x-2 group relative">
+              <button 
+                onClick={() => scrollToSection('pricing')}
+                className="btn-primary px-8 py-4 rounded-lg font-semibold text-lg flex items-center space-x-2 group relative"
+              >
                 <span>Start Building Now</span>
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </button>
