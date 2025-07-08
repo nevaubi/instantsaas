@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 // Hardcoded Zapier webhook URL for automated template delivery (full-price tier)
-const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/23353457/ub674xa/";
+const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/23353457/u3fidh2/";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
