@@ -24,9 +24,12 @@ const HeroSection = () => {
         <div className="text-center">
           {/* Floating badges */}
           <div className="flex flex-wrap justify-center gap-4 mb-3 md:mb-4 mt-4 md:mt-6 animate-fade-in">
-            <div className="bg-brand-white border border-gray-200 rounded-full px-4 py-2 flex items-center space-x-2 shadow-sm">
-              <Zap className="h-4 w-4 text-brand-orange" />
-              <span className="text-sm text-brand-dark-gray">Slash Dev Time/Cost by ~99%</span>
+            <div className="relative">
+              <div className="absolute top-1 left-1 w-full h-full bg-brand-dark-gray rounded-full -z-10"></div>
+              <div className="bg-brand-white border border-gray-200 rounded-full px-4 py-2 flex items-center space-x-2 shadow-sm relative">
+                <Zap className="h-4 w-4 text-brand-orange" />
+                <span className="text-sm text-brand-dark-gray">Slash Dev Time/Cost by ~99%</span>
+              </div>
             </div>
           </div>
 
@@ -72,7 +75,7 @@ const HeroSection = () => {
           </div>
 
           {/* Hero visual placeholder */}
-          <div className="relative max-w-[50rem] mx-auto">
+          <div className="relative max-w-[50rem] mx-auto hidden md:block">
             <div className="bg-brand-white border border-gray-200 rounded-2xl p-8 shadow-xl">
               <div className="bg-brand-dark-gray rounded-lg p-6 font-mono text-left relative">
                 <div className="flex items-center space-x-2 mb-4">
@@ -89,7 +92,7 @@ const HeroSection = () => {
                     <div className="text-gray-400">✓ Configuring Stripe payments...</div>
                     <div className="text-gray-400">✓ Database ready...</div>
                     <div className="text-blue-400">🚀 Your SaaS is ready to launch!</div>
-                    <div className="hidden md:block absolute -top-16 right-0">
+                    <div className="absolute -top-16 right-0">
                       <img 
                         src="/workswith.png" 
                         alt="Works with" 
