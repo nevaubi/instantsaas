@@ -17,6 +17,10 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
   const [consentChecked, setConsentChecked] = useState(false);
   const { toast } = useToast();
 
+  const handleConsentChange = (checked: boolean | "indeterminate") => {
+    setConsentChecked(checked === true);
+  };
+
   const handleTwitterLogin = async () => {
     if (!consentChecked) {
       toast({
@@ -59,40 +63,40 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] max-w-[90vw] bg-brand-white border border-gray-200">
+      <DialogContent className="sm:max-w-[420px] max-w-[90vw] bg-brand-white border border-gray-200">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-brand-dark-gray text-center mb-6">
+          <DialogTitle className="text-2xl font-bold text-brand-dark-gray text-center mb-2">
             Get Your <span className="text-brand-orange">40% Discount</span>
           </DialogTitle>
         </DialogHeader>
         
         <div className="flex flex-col items-center space-y-6 p-6">
           {/* Twitter Icon */}
-          <div className="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center">
-            <Twitter className="h-10 w-10 text-white" />
+          <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
+            <Twitter className="h-8 w-8 text-white" />
           </div>
 
           {/* Main Text */}
           <div className="text-center space-y-3">
-            <h3 className="text-xl font-semibold text-brand-dark-gray">
+            <h3 className="text-lg font-semibold text-brand-dark-gray">
               Login with Twitter for Instant Discount
             </h3>
-            <p className="text-brand-dark-gray max-w-sm">
+            <p className="text-brand-dark-gray text-sm max-w-sm">
               Authenticate with your Twitter account to unlock 40% off InstantSaaS and get it for just $39!
             </p>
           </div>
 
           {/* Consent Checkbox */}
-          <div className="flex items-start space-x-3 w-full max-w-sm">
+          <div className="flex items-start space-x-3 w-full">
             <Checkbox
               id="consent"
               checked={consentChecked}
-              onCheckedChange={setConsentChecked}
+              onCheckedChange={handleConsentChange}
               className="mt-1"
             />
             <label 
               htmlFor="consent" 
-              className="text-sm text-brand-dark-gray leading-relaxed cursor-pointer"
+              className="text-sm text-brand-dark-gray leading-relaxed cursor-pointer flex-1"
             >
               I agree to add my Twitter email address to the Nevaubi newsletter to receive updates and the discount code.
             </label>
@@ -102,7 +106,7 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
           <Button 
             onClick={handleTwitterLogin}
             disabled={!consentChecked || isLoading}
-            className="w-full max-w-sm bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-semibold flex items-center justify-center space-x-2"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-semibold flex items-center justify-center space-x-2"
           >
             {isLoading ? (
               <>
