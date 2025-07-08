@@ -5,11 +5,11 @@ import { ChevronDown } from 'lucide-react';
 const faqs = [
   {
     question: 'What exactly do I get with InstantSaaS?',
-    answer: 'You get a complete, production-ready SaaS boilerplate including authentication, payment processing, database setup, admin dashboard, email integration, and deployment guides. Everything is built with modern technologies like Next.js 14, TypeScript, and Tailwind CSS.'
+    answer: 'You get a complete, production-ready SaaS boilerplate including built-in authentication workflows, payment processing, database preconfigured, deployment guides, addition UI templates and components.'
   },
   {
     question: 'How quickly can I launch my SaaS?',
-    answer: 'Most developers launch within 1-2 days instead of weeks or months. The boilerplate includes all the complex integrations pre-built, so you can focus on your unique business logic and features.'
+    answer: 'Devs can launch within days instead of weeks or months. The boilerplate includes all the boring & complex integrations pre-built, so you can focus on your unique business features at your own pace.'
   },
   {
     question: 'Do I need to know all these technologies?',
@@ -21,7 +21,7 @@ const faqs = [
   },
   {
     question: 'What kind of support do you provide?',
-    answer: 'You get access to our Discord community where you can ask questions and get help from other developers. Plus, lifetime updates mean you\'ll always have the latest features and security updates.'
+    answer: 'You recieve helpful documentation that extensively covers implemenation and setup. As well as lifetime updates to all future features and documention updates. Feel free to direct DM on twitter for additional help/questions if needed!'
   },
   {
     question: 'Can I use this for client projects?',
