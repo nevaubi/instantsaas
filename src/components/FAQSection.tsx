@@ -36,32 +36,32 @@ const FAQSection = () => {
     <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
             Frequently Asked 
-            <span className="text-primary"> Questions</span>
+            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> Questions</span>
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-gray-300">
             Everything you need to know about InstantSaaS.
           </p>
         </div>
 
         <div className="space-y-4">
           {faqs.map((faq, index) => (
-            <div key={index} className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+            <div key={index} className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-2xl overflow-hidden">
               <button
-                className="w-full px-6 py-6 text-left flex items-center justify-between hover:bg-secondary transition-colors duration-200"
+                className="w-full px-6 py-6 text-left flex items-center justify-between hover:bg-slate-800/70 transition-colors duration-200"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
-                <h3 className="text-lg font-semibold text-card-foreground pr-4">{faq.question}</h3>
+                <h3 className="text-lg font-semibold text-white pr-4">{faq.question}</h3>
                 <ChevronDown 
-                  className={`h-5 w-5 text-primary flex-shrink-0 transition-transform duration-200 ${
+                  className={`h-5 w-5 text-purple-400 flex-shrink-0 transition-transform duration-200 ${
                     openIndex === index ? 'transform rotate-180' : ''
                   }`} 
                 />
               </button>
               {openIndex === index && (
                 <div className="px-6 pb-6">
-                  <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
+                  <p className="text-gray-300 leading-relaxed">{faq.answer}</p>
                 </div>
               )}
             </div>

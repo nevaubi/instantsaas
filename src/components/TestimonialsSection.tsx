@@ -37,11 +37,11 @@ const TestimonialsSection = () => {
     <section className="py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
             Loved by 
-            <span className="text-primary"> Developers</span>
+            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> Developers</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
             Join hundreds of developers who've launched their SaaS products faster than ever before.
           </p>
         </div>
@@ -50,21 +50,21 @@ const TestimonialsSection = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-card border border-border rounded-2xl p-6 hover:bg-secondary transition-all duration-300 hover:scale-105 hover:shadow-lg hover:rotate-1"
+              className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-6 hover:bg-slate-800/70 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 hover:rotate-1"
             >
               <div className="flex items-start space-x-4">
                 <div className="text-3xl">{testimonial.avatar}</div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    <h4 className="font-bold text-card-foreground">{testimonial.name}</h4>
+                    <h4 className="font-bold text-white">{testimonial.name}</h4>
                     {testimonial.verified && (
-                      <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                        <span className="text-primary-foreground text-xs">✓</span>
+                      <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs">✓</span>
                       </div>
                     )}
                   </div>
-                  <p className="text-muted-foreground text-sm mb-3">{testimonial.handle}</p>
-                  <p className="text-card-foreground leading-relaxed">{testimonial.content}</p>
+                  <p className="text-gray-400 text-sm mb-3">{testimonial.handle}</p>
+                  <p className="text-gray-300 leading-relaxed">{testimonial.content}</p>
                 </div>
               </div>
             </div>
