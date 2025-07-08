@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -90,25 +89,13 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
             </h3>
           </div>
 
-          {/* Twitter Follow Button with Step Number */}
-          <div className="flex flex-col items-center space-y-2 w-full">
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-brand-orange rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold">1</span>
-              </div>
-              <div 
-                dangerouslySetInnerHTML={{
-                  __html: `<a href="https://twitter.com/itsfiras1" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @itsfiras1</a>`
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Step 2 Header */}
-          <div className="flex items-center justify-center">
-            <div className="w-6 h-6 bg-brand-orange rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-bold">2</span>
-            </div>
+          {/* Twitter Follow Button */}
+          <div className="flex justify-center w-full">
+            <div 
+              dangerouslySetInnerHTML={{
+                __html: `<a href="https://twitter.com/itsfiras1" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @itsfiras1</a>`
+              }}
+            />
           </div>
 
           {/* Consent Checkbox */}
