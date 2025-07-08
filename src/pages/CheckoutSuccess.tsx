@@ -8,41 +8,39 @@ import { supabase } from '@/integrations/supabase/client';
 const CheckoutSuccess = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingComplete, setProcessingComplete] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const updateSubscriptionStatus = async () => {
-      if (!sessionId) return;
+    const processPaymentSuccess = async () => {
+      if (!sessionId || processingComplete) return;
       
-      setIsUpdating(true);
+      setIsProcessing(true);
       try {
-        // Update the subscription status to 'active' for successful payment
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { error } = await supabase
-            .from('discounted_users')
-            .update({ 
-              subscribe_status: 'active',
-              updated_at: new Date().toISOString() 
-            })
-            .eq('user_id', user.id)
-            .eq('stripe_checkout_session_id', sessionId);
-          
-          if (error) {
-            console.error('Error updating subscription status:', error);
-          } else {
-            console.log('Successfully updated subscription status to active');
-          }
+        console.log('Calling discounted-users-payment-success function with session:', sessionId);
+        
+        const { data, error } = await supabase.functions.invoke('discounted-users-payment-success', {
+          body: { sessionId }
+        });
+        
+        if (error) {
+          console.error('Error processing payment success:', error);
+          setError('Failed to process payment. Please contact support.');
+        } else {
+          console.log('Payment processing completed successfully:', data);
+          setProcessingComplete(true);
         }
       } catch (error) {
-        console.error('Error in updateSubscriptionStatus:', error);
+        console.error('Error in processPaymentSuccess:', error);
+        setError('An unexpected error occurred. Please contact support.');
       } finally {
-        setIsUpdating(false);
+        setIsProcessing(false);
       }
     };
 
-    updateSubscriptionStatus();
-  }, [sessionId]);
+    processPaymentSuccess();
+  }, [sessionId, processingComplete]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center px-4">
@@ -56,7 +54,12 @@ const CheckoutSuccess = () => {
         </h1>
         
         <p className="text-gray-600 mb-6 leading-relaxed">
-          Congratulations! Your 40% discount purchase was successful. You now have access to the discounted product.
+          Congratulations! Your 40% discount purchase was successful. 
+          {processingComplete ? (
+            " Your template delivery has been initiated and you should receive it shortly."
+          ) : (
+            " We're processing your order and setting up template delivery."
+          )}
         </p>
         
         {sessionId && (
@@ -66,8 +69,20 @@ const CheckoutSuccess = () => {
           </div>
         )}
         
-        {isUpdating && (
-          <p className="text-sm text-blue-600 mb-4">Updating your account...</p>
+        {isProcessing && (
+          <p className="text-sm text-blue-600 mb-4">Processing your order and setting up delivery...</p>
+        )}
+        
+        {error && (
+          <p className="text-sm text-red-600 mb-4">{error}</p>
+        )}
+        
+        {processingComplete && (
+          <div className="bg-green-50 rounded-lg p-4 mb-6">
+            <p className="text-sm text-green-700 font-medium">
+              ✅ Order processed successfully! Template delivery initiated.
+            </p>
+          </div>
         )}
         
         <div className="space-y-4">
@@ -79,7 +94,7 @@ const CheckoutSuccess = () => {
           </Button>
           
           <p className="text-xs text-gray-500">
-            You should receive a confirmation email shortly.
+            You should receive a confirmation email and template delivery details shortly.
           </p>
         </div>
       </div>
