@@ -40,7 +40,7 @@ const HeroSection = () => {
           </h1>
 
           {/* Subheadline */}
-          <p className="text-lg md:text-xl lg:text-2xl text-brand-dark-gray mb-6 md:mb-7 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl lg:text-2xl text-brand-dark-gray mb-6 md:mb-7 max-w-4xl mx-auto leading-snug md:leading-relaxed">
             <span className="underline">Prod-ready</span> SaaS boilerplate with auth, stripe, world class ui, and <span className="bg-brand-highlight px-2 rounded-lg">everything</span> you need to launch fast. Skip weeks of setup pain, no headaches - <span className="font-bold">just launch</span>.
           </p>
 
