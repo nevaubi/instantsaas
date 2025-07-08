@@ -54,7 +54,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-brand-white text-brand-dark-gray font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
@@ -82,18 +82,18 @@
 
 @layer utilities {
   .text-accent {
-    @apply text-orange-500;
+    @apply text-brand-orange;
   }
   
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white;
+    @apply bg-brand-cta-orange hover:opacity-90 text-white;
   }
   
   .btn-secondary {
-    @apply bg-white border border-slate-300 hover:bg-slate-50 text-slate-700;
+    @apply bg-transparent border border-brand-dark-gray hover:bg-brand-dark-gray hover:text-white;
   }
   
   .card-clean {
-    @apply bg-white border border-slate-200 shadow-sm;
+    @apply bg-brand-white border border-gray-200 shadow-sm;
   }
 }
