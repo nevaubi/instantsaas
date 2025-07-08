@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -135,15 +135,9 @@ const CheckoutSuccessFullPrice = () => {
 
         <div className="bg-blue-50 rounded-lg p-4 mb-6">
           <h3 className="font-semibold text-blue-900 mb-2">What's Next?</h3>
-          <p className="text-sm text-blue-800 mb-4">
-            To complete your setup and receive your SaaS template, please provide your GitHub username.
+          <p className="text-sm text-blue-800">
+            You'll receive setup instructions and a GitHub access link via email shortly. Please check your email to complete the setup process.
           </p>
-          <Button asChild className="w-full mb-2">
-            <Link to={`/github-username-fullprice?order_id=${order?.id}`}>
-              Setup GitHub Access
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Link>
-          </Button>
         </div>
 
         <div className="text-center">

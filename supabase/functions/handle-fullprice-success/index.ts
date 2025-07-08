@@ -75,6 +75,10 @@ serve(async (req) => {
 
     console.log("Full-price order status updated to paid with customer email");
 
+    // Generate the GitHub setup link with both email and order_id parameters
+    const origin = req.headers.get('origin') || 'https://lovable.dev';
+    const githubSetupLink = `${origin}/github-username-fullprice?email=${encodeURIComponent(customerEmail)}&order_id=${orderData.id}`;
+
     // Automatically trigger Zapier webhook
     console.log("Triggering Zapier webhook:", ZAPIER_WEBHOOK_URL);
     
@@ -88,7 +92,8 @@ serve(async (req) => {
       payment_date: new Date().toISOString(),
       template_name: "Complete SaaS Template - Full Price",
       template_description: "Production-ready boilerplate with Stripe, Supabase, and more (Full Price Tier)",
-      tier: "fullprice"
+      tier: "fullprice",
+      github_setup_link: githubSetupLink
     };
 
     try {

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle, Loader2, AlertCircle, ArrowRight, Github } from 'lucide-react';
+import { CheckCircle, Loader2, AlertCircle, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,32 +26,35 @@ const GitHubUsernameFullPrice = () => {
   const [error, setError] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
 
-  const orderId = searchParams.get('order_id');
+  // Handle both parameter formats: order_id (from email) and orderId (legacy)
+  const email = searchParams.get('email');
+  const orderId = searchParams.get('order_id') || searchParams.get('orderId');
 
   useEffect(() => {
-    if (!orderId) {
-      setError('Invalid link - missing order ID');
+    if (!email || !orderId) {
+      setError('Invalid setup link. Please check your email for the correct link.');
       setIsLoading(false);
       return;
     }
 
     verifyOrder();
-  }, [orderId]);
+  }, [email, orderId]);
 
   const verifyOrder = async () => {
     try {
       setIsLoading(true);
-      console.log('Verifying full-price order:', { orderId });
+      console.log('Verifying full-price order:', { email, orderId });
 
       const { data, error: fetchError } = await supabase
         .from('fullprice_orders')
         .select('*')
         .eq('id', orderId)
+        .eq('email', email)
         .single();
 
       if (fetchError || !data) {
         console.error('Order verification failed:', fetchError);
-        setError('Order not found or invalid link');
+        setError('Order not found or email mismatch. Please check your email for the correct link.');
         return;
       }
 
@@ -70,6 +73,23 @@ const GitHubUsernameFullPrice = () => {
     }
   };
 
+  const validateGitHubUsername = (username: string) => {
+    if (!username) {
+      return 'GitHub username is required';
+    }
+    
+    if (username.length < 1 || username.length > 39) {
+      return 'GitHub username must be between 1 and 39 characters';
+    }
+    
+    const githubUsernameRegex = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
+    if (!githubUsernameRegex.test(username)) {
+      return 'Invalid GitHub username format. Only alphanumeric characters and hyphens are allowed, and it cannot start or end with a hyphen.';
+    }
+    
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -82,12 +102,11 @@ const GitHubUsernameFullPrice = () => {
       return;
     }
 
-    // Validate GitHub username format
-    const githubUsernameRegex = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
-    if (!githubUsernameRegex.test(githubUsername)) {
+    const validation = validateGitHubUsername(githubUsername);
+    if (validation) {
       toast({
         title: "Invalid Username",
-        description: "Please enter a valid GitHub username (only letters, numbers, and hyphens allowed)",
+        description: validation,
         variant: "destructive",
       });
       return;
@@ -95,9 +114,9 @@ const GitHubUsernameFullPrice = () => {
 
     setIsSubmitting(true);
     try {
-      console.log('Submitting GitHub username for full-price order:', { orderId, githubUsername });
+      console.log('Submitting GitHub username for full-price order:', { email, orderId, githubUsername });
       
-      // Update the order with GitHub username
+      // Update the order with GitHub username directly
       const { data, error } = await supabase
         .from('fullprice_orders')
         .update({ 
@@ -106,6 +125,7 @@ const GitHubUsernameFullPrice = () => {
           updated_at: new Date().toISOString()
         })
         .eq('id', orderId)
+        .eq('email', email)
         .select()
         .single();
 
@@ -125,7 +145,7 @@ const GitHubUsernameFullPrice = () => {
       
       toast({
         title: "Success!",
-        description: "GitHub username saved successfully. Repository creation has been initiated.",
+        description: "GitHub username saved successfully. Repository invitation will be sent shortly.",
       });
     } catch (err) {
       console.error('Error in handleSubmit:', err);
@@ -178,9 +198,9 @@ const GitHubUsernameFullPrice = () => {
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center px-4">
         <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8 text-center">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Username Saved!</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Setup Complete!</h1>
           <p className="text-gray-600 mb-6">
-            You've been invited for access to the boilerplate repo! Note: The invite will be via the linked GitHub email of your username's account.
+            Your GitHub username has been saved successfully. Your private repository invite will be sent shortly.
           </p>
           
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -191,9 +211,10 @@ const GitHubUsernameFullPrice = () => {
           <div className="bg-blue-50 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-blue-900 mb-2">What's Next?</h3>
             <ul className="text-sm text-blue-800 space-y-1">
-              <li>• You've been sent setup instructions & docs (to the same email as your first email, for the username input form)</li>
-              <li>• You'll receive an email invitation to collaborate</li>
-              <li>• Enjoy your prod-ready SaaS boilerplate, always feel free to connect and update on shipping progress!</li>
+              <li>• You'll receive an invite to the private repository via the email linked to your GitHub username</li>
+              <li>• Accept the invite, and you'll be added as a repo collaborator</li>
+              <li>• You'll also receive setup instructions and documentation via email</li>
+              <li>• Enjoy unlimited access to your production-ready SaaS boilerplate!</li>
             </ul>
           </div>
 
@@ -210,7 +231,7 @@ const GitHubUsernameFullPrice = () => {
       <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <Github className="h-16 w-16 text-gray-700 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Setup Your GitHub</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">GitHub Repo Access</h1>
           <p className="text-gray-600">
             Enter your GitHub username to receive your private SaaS template repository
           </p>
@@ -220,12 +241,10 @@ const GitHubUsernameFullPrice = () => {
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-gray-900 mb-3">Order Details</h3>
             <div className="space-y-2 text-sm">
-              {order.email && order.email !== '' && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Email:</span>
-                  <span className="text-gray-900">{order.email}</span>
-                </div>
-              )}
+              <div className="flex justify-between">
+                <span className="text-gray-600">Email:</span>
+                <span className="text-gray-900">{order.email}</span>
+              </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Amount:</span>
                 <span className="text-gray-900 font-semibold">
@@ -270,22 +289,28 @@ const GitHubUsernameFullPrice = () => {
                 Saving...
               </>
             ) : (
-              <>
-                Save GitHub Username
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </>
+              'Save GitHub Username'
             )}
           </Button>
         </form>
+
+        <div className="bg-blue-50 rounded-lg p-4 mt-6">
+          <h3 className="text-sm font-semibold text-blue-900 mb-2">What happens next?</h3>
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• You'll receive a private repo invite via the email linked to your GitHub username</li>
+            <li>• Accept the invite, and you'll be added as a repo collaborator</li>
+            <li>• You'll also be emailed setup instructions and documentation</li>
+            <li>• Enjoy unlimited access to your new production-ready SaaS boilerplate!</li>
+          </ul>
+        </div>
 
         <div className="mt-6 text-center">
           <Link to="/" className="text-sm text-gray-500 hover:text-gray-700">
             ← Return to Homepage
           </Link>
-          </div>
         </div>
       </div>
     );
   };
 
-  export default GitHubUsernameFullPrice;
+export default GitHubUsernameFullPrice;
