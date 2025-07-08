@@ -65,6 +65,54 @@ export type Database = {
         }
         Relationships: []
       }
+      fullprice_orders: {
+        Row: {
+          amount: number | null
+          created_at: string
+          currency: string | null
+          delivery_status: string | null
+          email: string
+          github_username: string | null
+          id: string
+          stripe_checkout_session_id: string | null
+          stripe_customer_id: string | null
+          subscribe_date: string | null
+          subscribe_status: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          delivery_status?: string | null
+          email: string
+          github_username?: string | null
+          id?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          subscribe_date?: string | null
+          subscribe_status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          delivery_status?: string | null
+          email?: string
+          github_username?: string | null
+          id?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          subscribe_date?: string | null
+          subscribe_status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

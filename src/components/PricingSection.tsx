@@ -1,14 +1,17 @@
-
 import React, { useState } from 'react';
 import { Check, Star, Zap } from 'lucide-react';
 import DiscountModal from './DiscountModal';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const PricingSection = () => {
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
+  const [isFullPriceLoading, setIsFullPriceLoading] = useState(false);
+  const { toast } = useToast();
 
   const features = [
     'Complete Vite + React boilerplate',
-    'Supabase Auth (Email + Google)',
+    'Supabase Auth (Email + Google)', 
     'Stripe pymt workflows',
     'SEO optimization (Blog Addition)',
     'Docs & Setup Guides',
@@ -16,6 +19,67 @@ const PricingSection = () => {
     'Lifetime Repo Updates',
     'Unmatched Value for the Price'
   ];
+
+  const handleFullPriceCheckout = async () => {
+    const email = prompt('Please enter your email address:');
+    
+    if (!email) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address to proceed with checkout.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsFullPriceLoading(true);
+    
+    try {
+      console.log('Starting full-price checkout for:', email);
+      
+      const { data, error } = await supabase.functions.invoke('create-fullprice-checkout', {
+        body: { email }
+      });
+
+      if (error) {
+        console.error('Error creating full-price checkout:', error);
+        toast({
+          title: "Checkout Failed",
+          description: error.message || "Failed to create checkout session. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data?.url) {
+        console.log('Redirecting to Stripe checkout:', data.url);
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (err) {
+      console.error('Error in full-price checkout:', err);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsFullPriceLoading(false);
+    }
+  };
 
   return (
     <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-brand-white">
@@ -88,9 +152,22 @@ const PricingSection = () => {
               ))}
             </ul>
 
-            <button className="w-full btn-primary py-3 rounded-lg font-semibold flex items-center justify-center space-x-2">
-              <span>Start Building</span>
-              <Zap className="h-5 w-5" />
+            <button 
+              onClick={handleFullPriceCheckout}
+              disabled={isFullPriceLoading}
+              className="w-full btn-primary py-3 rounded-lg font-semibold flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isFullPriceLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <span>Start Building</span>
+                  <Zap className="h-5 w-5" />
+                </>
+              )}
             </button>
           </div>
         </div>
