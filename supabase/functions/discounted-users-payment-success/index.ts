@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -92,10 +91,11 @@ serve(async (req) => {
       stripe_session_id: sessionId,
       customer_name: session.customer_details?.name || "",
       payment_date: new Date().toISOString(),
-      template_name: "Discounted_SaaS_Template", // Updated template name
+      template_name: "Discounted_SaaS_Template",
       template_description: "Production-ready SaaS boilerplate with 40% discount",
       github_username: discountedUserData.github_username || "",
-      twitter_username: discountedUserData.twitter_username || ""
+      twitter_username: discountedUserData.twitter_username || "",
+      github_setup_url: `https://instantsaas.dev/github-username?email=${encodeURIComponent(customerEmail)}&order_id=${discountedUserData.id}`
     };
 
     try {

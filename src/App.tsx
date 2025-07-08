@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import CheckoutCancel from "./pages/CheckoutCancel";
+import GitHubUsername from "./pages/GitHubUsername";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,7 @@ const App = () => {
             <Route path="/" element={<Index />} />
             <Route path="/checkout-success" element={<CheckoutSuccess />} />
             <Route path="/checkout-cancel" element={<CheckoutCancel />} />
+            <Route path="/github-username" element={<GitHubUsername />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
