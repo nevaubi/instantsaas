@@ -20,10 +20,10 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gray-50/50" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-18">
         <div className="text-center">
           {/* Floating badges */}
-          <div className="flex flex-wrap justify-center gap-4 mb-8 animate-fade-in">
+          <div className="flex flex-wrap justify-center gap-4 mb-6 md:mb-7 mt-4 md:mt-0 animate-fade-in">
             <div className="bg-brand-white border border-gray-200 rounded-full px-4 py-2 flex items-center space-x-2 shadow-sm">
               <Zap className="h-4 w-4 text-brand-orange" />
               <span className="text-sm text-brand-dark-gray">Slash Dev Time/Cost by ~99%</span>
@@ -31,30 +31,30 @@ const HeroSection = () => {
           </div>
 
           {/* Main headline */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-brand-dark-gray mb-6">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-brand-dark-gray mb-4 md:mb-5 leading-tight lg:leading-[1.3]">
             <span className="font-extrabold leading-tight lg:leading-[1.3]">
               Stop waiting and losing $
               <br />
-              Launch Fast, <span className="bg-brand-highlight px-2 rounded-lg">Earn Faster</span>
+              Launch Fast, <span className="bg-brand-highlight px-2 rounded-lg">Earn <span className="underline">Faster</span></span>
             </span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-lg md:text-xl lg:text-2xl text-brand-dark-gray mb-8 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl lg:text-2xl text-brand-dark-gray mb-6 md:mb-7 max-w-4xl mx-auto leading-relaxed">
             <span className="underline">Prod-ready</span> SaaS boilerplate with auth, stripe, world class ui, and <span className="bg-brand-highlight px-2 rounded-lg">everything</span> you need to launch fast. Skip weeks of setup pain, no headaches - <span className="font-bold">just launch</span>.
           </p>
 
           {/* Logos */}
-          <div className="mb-8">
+          <div className="mb-6 md:mb-7">
             <img 
               src="/logoss.png" 
               alt="Technology logos" 
-              className="mx-auto w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl h-auto"
+              className="mx-auto w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl h-auto"
             />
           </div>
 
           {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8 md:mb-10">
             <div className="relative">
               <div className="absolute top-1 left-1 w-full h-full bg-brand-dark-gray rounded-lg -z-10"></div>
               <button className="btn-primary px-8 py-4 rounded-lg font-semibold text-lg flex items-center space-x-2 group relative">
