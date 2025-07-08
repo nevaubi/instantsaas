@@ -54,12 +54,7 @@ const CheckoutSuccess = () => {
         </h1>
         
         <p className="text-gray-600 mb-6 leading-relaxed">
-          Congratulations! Your 40% discount purchase was successful. 
-          {processingComplete ? (
-            " Your template delivery has been initiated and you should receive it shortly."
-          ) : (
-            " We're processing your order and setting up template delivery."
-          )}
+          Thank you for your purchase. Your 40% discount was applied. In a moment you'll receive an email for payment confirmation and a link to a GitHub username input form.
         </p>
         
         {sessionId && (
@@ -80,7 +75,7 @@ const CheckoutSuccess = () => {
         {processingComplete && (
           <div className="bg-green-50 rounded-lg p-4 mb-6">
             <p className="text-sm text-green-700 font-medium">
-              ✅ Order processed successfully! Template delivery initiated.
+              ✅ Please click the GitHub username link in your email to finish setup!
             </p>
           </div>
         )}
@@ -92,10 +87,6 @@ const CheckoutSuccess = () => {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
-          
-          <p className="text-xs text-gray-500">
-            You should receive a confirmation email and template delivery details shortly.
-          </p>
         </div>
       </div>
     </div>
