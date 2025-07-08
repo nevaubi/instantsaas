@@ -4,11 +4,13 @@ import { Check, Star, Zap } from 'lucide-react';
 import DiscountModal from './DiscountModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const PricingSection = () => {
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
   const [isFullPriceLoading, setIsFullPriceLoading] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const features = [
     'Complete Vite + React boilerplate',
@@ -43,8 +45,32 @@ const PricingSection = () => {
 
       if (data?.url) {
         console.log('Redirecting to Stripe checkout:', data.url);
-        // Open Stripe checkout in a new tab
-        window.open(data.url, '_blank');
+        console.log('Device type:', isMobile ? 'mobile' : 'desktop');
+        
+        if (isMobile) {
+          // On mobile: redirect in same window for better UX
+          console.log('Mobile detected - redirecting in same window');
+          window.location.href = data.url;
+        } else {
+          // On desktop: try to open in new tab, fallback to same window
+          console.log('Desktop detected - attempting new tab');
+          try {
+            const newWindow = window.open(data.url, '_blank', 'noopener,noreferrer');
+            if (!newWindow || newWindow.closed) {
+              console.log('New tab blocked or failed, falling back to same window');
+              window.location.href = data.url;
+            } else {
+              console.log('Successfully opened checkout in new tab');
+              toast({
+                title: "Redirecting to Checkout",
+                description: "Please complete your purchase in the new tab that opened.",
+              });
+            }
+          } catch (err) {
+            console.log('New tab failed, using same window redirect:', err);
+            window.location.href = data.url;
+          }
+        }
       } else {
         throw new Error('No checkout URL received');
       }
