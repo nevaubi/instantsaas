@@ -30,6 +30,7 @@ const Index = () => {
           
           try {
             // Call process-discount-auth edge function
+            console.log('Calling process-discount-auth...');
             const { data: processData, error: processError } = await supabase.functions.invoke('process-discount-auth', {
               headers: {
                 Authorization: `Bearer ${session.access_token}`,
@@ -44,7 +45,8 @@ const Index = () => {
             console.log('Discount auth processed successfully:', processData);
 
             // Now create discount checkout
-            const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-discount-checkout', {
+            console.log('Calling create-discount-checkout...');
+            const { data: checkoutResponse, error: checkoutError } = await supabase.functions.invoke('create-discount-checkout', {
               headers: {
                 Authorization: `Bearer ${session.access_token}`,
               },
@@ -55,17 +57,21 @@ const Index = () => {
               throw checkoutError;
             }
 
-            console.log('Discount checkout created:', checkoutData);
+            console.log('Discount checkout response:', checkoutResponse);
 
             // Clean up localStorage flag
             localStorage.removeItem('discount_flow_active');
 
-            // Redirect to Stripe checkout
-            if (checkoutData?.url) {
-              console.log('Redirecting to Stripe checkout:', checkoutData.url);
-              window.location.href = checkoutData.url;
+            // Redirect to Stripe checkout - the URL is in the response data
+            const checkoutUrl = checkoutResponse?.url;
+            console.log('Extracted checkout URL:', checkoutUrl);
+            
+            if (checkoutUrl) {
+              console.log('Redirecting to Stripe checkout:', checkoutUrl);
+              window.location.href = checkoutUrl;
             } else {
-              throw new Error('No checkout URL received');
+              console.error('No checkout URL found in response:', checkoutResponse);
+              throw new Error('No checkout URL received from server');
             }
 
           } catch (error) {
