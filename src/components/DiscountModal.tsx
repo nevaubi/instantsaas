@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -88,9 +87,6 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
             <h3 className="text-lg font-semibold text-brand-dark-gray">
               Follow & Login for Instant Discount
             </h3>
-            <p className="text-brand-dark-gray text-sm max-w-sm">
-              Follow us on Twitter and authenticate with your account to unlock 40% off InstantSaaS for just $39!
-            </p>
           </div>
 
           {/* Twitter Follow Button */}
@@ -114,7 +110,7 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
               htmlFor="consent" 
               className="text-sm text-brand-dark-gray leading-relaxed cursor-pointer flex-1"
             >
-              I agree to add my Twitter email address to the Nevaubi newsletter to receive updates and the discount code.
+              I agree to add my linked X (Twitter) email address to Nevaubi's newsletter mailing list.
             </label>
           </div>
 
@@ -139,7 +135,7 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
 
           {/* Footer Text */}
           <p className="text-xs text-gray-600 text-center max-w-sm">
-            By continuing, you'll be redirected to Twitter for authentication. Your discount will be applied automatically after successful login.
+            You'll be redirected to X (Twitter) for auth. Your 40% discount will be applied after successful login
           </p>
         </div>
       </DialogContent>
