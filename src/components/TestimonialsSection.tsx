@@ -34,14 +34,14 @@ const testimonials = [
 
 const TestimonialsSection = () => {
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6">
-            Loved by 
-            <span className="text-blue-600"> Developers</span>
+          <h2 className="text-3xl md:text-5xl font-bold text-brand-dark-gray mb-6">
+            Loved by
+            <span className="text-brand-orange"> Developers</span>
           </h2>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+          <p className="text-xl text-brand-dark-gray max-w-3xl mx-auto">
             Join hundreds of developers who've launched their SaaS products faster than ever before.
           </p>
         </div>
@@ -50,21 +50,21 @@ const TestimonialsSection = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-slate-300 hover:shadow-lg transition-all duration-300"
+              className="bg-brand-white border border-gray-200 rounded-2xl p-6 hover:border-brand-orange hover:shadow-lg transition-all duration-300"
             >
               <div className="flex items-start space-x-4">
                 <div className="text-3xl">{testimonial.avatar}</div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    <h4 className="font-bold text-slate-900">{testimonial.name}</h4>
+                    <h4 className="font-bold text-brand-dark-gray">{testimonial.name}</h4>
                     {testimonial.verified && (
-                      <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                      <div className="w-4 h-4 bg-brand-light-blue rounded-full flex items-center justify-center">
                         <span className="text-white text-xs">✓</span>
                       </div>
                     )}
                   </div>
-                  <p className="text-slate-500 text-sm mb-3">{testimonial.handle}</p>
-                  <p className="text-slate-700 leading-relaxed">{testimonial.content}</p>
+                  <p className="text-gray-500 text-sm mb-3">{testimonial.handle}</p>
+                  <p className="text-brand-dark-gray leading-relaxed">{testimonial.content}</p>
                 </div>
               </div>
             </div>
