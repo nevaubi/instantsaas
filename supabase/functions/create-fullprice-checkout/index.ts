@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import Stripe from "https://esm.sh/stripe@14.21.0"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
 const corsHeaders = {
@@ -14,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Creating full-price checkout without authentication');
+    console.log('Creating full-price checkout session...');
 
     // Validate required environment variables
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -26,13 +27,21 @@ serve(async (req) => {
       throw new Error('Server configuration error');
     }
 
-    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
+    // Initialize Stripe
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: "2023-10-16",
+    });
+
+    // Create Supabase client with service role key
+    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false }
+    });
 
     // Create placeholder full-price order record without email
     const { data: orderData, error: orderError } = await supabaseClient
       .from('fullprice_orders')
       .insert({
-        email: '', // Placeholder - will be updated after Stripe checkout
+        email: 'pending', // Placeholder - will be updated after Stripe checkout
         amount: 69.00,
         currency: 'usd',
         subscribe_status: 'pending',
@@ -48,40 +57,24 @@ serve(async (req) => {
 
     console.log('Placeholder full-price order created:', orderData);
 
-    // Prepare Stripe checkout session data with proper form encoding
+    // Create Stripe checkout session using SDK
     const origin = req.headers.get('origin') || 'http://localhost:3000';
-    const successUrl = `${origin}/checkout-success-fullprice?order_id=${orderData.id}`;
-    const cancelUrl = `${origin}/?canceled=true`;
-
-    // Build form data manually for Stripe API
-    const formData = new URLSearchParams();
-    formData.append('success_url', successUrl);
-    formData.append('cancel_url', cancelUrl);
-    formData.append('mode', 'payment');
-    formData.append('payment_method_types[0]', 'card');
-    formData.append('line_items[0][price]', 'price_1QVrdsEecc1GnxaLVgFklE8r');
-    formData.append('line_items[0][quantity]', '1');
-    formData.append('metadata[order_id]', orderData.id);
-    formData.append('metadata[tier]', 'fullprice');
-
-    console.log('Creating Stripe checkout session with form data');
-
-    const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${stripeSecretKey}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
+    const session = await stripe.checkout.sessions.create({
+      line_items: [
+        {
+          price: 'price_1RigQuCvgd1ruEdY3O3YkbSn', // Correct price ID for $69
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${origin}/checkout-success-fullprice?order_id=${orderData.id}`,
+      cancel_url: `${origin}/?canceled=true`,
+      metadata: {
+        order_id: orderData.id,
+        tier: 'fullprice'
       },
-      body: formData.toString(),
     });
 
-    if (!stripeResponse.ok) {
-      const errorText = await stripeResponse.text();
-      console.error('Stripe API error:', stripeResponse.status, errorText);
-      throw new Error(`Stripe API error: ${stripeResponse.status} - ${errorText}`);
-    }
-
-    const session = await stripeResponse.json();
     console.log('Stripe checkout session created successfully:', session.id);
 
     // Update order with Stripe session ID
@@ -116,7 +109,7 @@ serve(async (req) => {
         details: error.toString()
       }),
       { 
-        status: 400, 
+        status: 500, 
         headers: { 
           ...corsHeaders, 
           'Content-Type': 'application/json' 
