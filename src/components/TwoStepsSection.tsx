@@ -6,13 +6,16 @@ const TwoStepsSection = () => {
     <section className="pt-12 pb-20 px-4 sm:px-6 lg:px-8 bg-slate-900">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8 md:mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 md:mb-6">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 md:mb-3">
             Two steps, 60{" "}
             <span className="inline-flex items-center gap-2 whitespace-nowrap">
               seconds
               <Clock className="h-6 w-6 md:h-12 md:w-12 text-white" />
             </span>
           </h2>
+          <p className="text-gray-300 italic text-lg">
+            <span className="underline">Instant</span> boilerplate access after pymt
+          </p>
         </div>
 
         {/* Desktop Layout - Side by side with horizontal arrow */}
