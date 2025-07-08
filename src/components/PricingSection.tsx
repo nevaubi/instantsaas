@@ -1,8 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Check, Star, Zap } from 'lucide-react';
+import DiscountModal from './DiscountModal';
 
 const PricingSection = () => {
+  const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
+
   const features = [
     'Complete Vite + React boilerplate',
     'Supabase Auth (Email + Google)',
@@ -56,7 +59,10 @@ const PricingSection = () => {
               ))}
             </ul>
 
-            <button className="w-full btn-primary py-3 rounded-lg font-semibold flex items-center justify-center space-x-2">
+            <button 
+              onClick={() => setIsDiscountModalOpen(true)}
+              className="w-full btn-primary py-3 rounded-lg font-semibold flex items-center justify-center space-x-2"
+            >
               <span>Start Building</span>
               <Zap className="h-5 w-5" />
             </button>
@@ -82,8 +88,6 @@ const PricingSection = () => {
               ))}
             </ul>
 
-
-
             <button className="w-full btn-primary py-3 rounded-lg font-semibold flex items-center justify-center space-x-2">
               <span>Start Building</span>
               <Zap className="h-5 w-5" />
@@ -91,7 +95,11 @@ const PricingSection = () => {
           </div>
         </div>
 
-
+        {/* Discount Modal */}
+        <DiscountModal 
+          open={isDiscountModalOpen}
+          onOpenChange={setIsDiscountModalOpen}
+        />
       </div>
     </section>
   );
