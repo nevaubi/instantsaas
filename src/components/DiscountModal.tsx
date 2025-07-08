@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,6 +20,13 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
   const handleConsentChange = (checked: boolean | "indeterminate") => {
     setConsentChecked(checked === true);
   };
+
+  // Load Twitter widgets when modal opens
+  useEffect(() => {
+    if (open && window.twttr?.widgets) {
+      window.twttr.widgets.load();
+    }
+  }, [open]);
 
   const handleTwitterLogin = async () => {
     if (!consentChecked) {
@@ -79,11 +86,20 @@ const DiscountModal = ({ open, onOpenChange }: DiscountModalProps) => {
           {/* Main Text */}
           <div className="text-center space-y-3">
             <h3 className="text-lg font-semibold text-brand-dark-gray">
-              Login with Twitter for Instant Discount
+              Follow & Login for Instant Discount
             </h3>
             <p className="text-brand-dark-gray text-sm max-w-sm">
-              Authenticate with your Twitter account to unlock 40% off InstantSaaS and get it for just $39!
+              Follow us on Twitter and authenticate with your account to unlock 40% off InstantSaaS for just $39!
             </p>
+          </div>
+
+          {/* Twitter Follow Button */}
+          <div className="flex justify-center w-full">
+            <div 
+              dangerouslySetInnerHTML={{
+                __html: `<a href="https://twitter.com/itsfiras1" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @itsfiras1</a>`
+              }}
+            />
           </div>
 
           {/* Consent Checkbox */}
