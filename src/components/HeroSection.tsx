@@ -23,7 +23,7 @@ const HeroSection = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-18">
         <div className="text-center">
           {/* Floating badges */}
-          <div className="flex flex-wrap justify-center gap-4 mb-6 md:mb-7 mt-4 md:mt-0 animate-fade-in">
+          <div className="flex flex-wrap justify-center gap-4 mb-3 md:mb-4 mt-4 md:mt-6 animate-fade-in">
             <div className="bg-brand-white border border-gray-200 rounded-full px-4 py-2 flex items-center space-x-2 shadow-sm">
               <Zap className="h-4 w-4 text-brand-orange" />
               <span className="text-sm text-brand-dark-gray">Slash Dev Time/Cost by ~99%</span>
@@ -40,12 +40,12 @@ const HeroSection = () => {
           </h1>
 
           {/* Subheadline */}
-          <p className="text-lg md:text-xl lg:text-2xl text-brand-dark-gray mb-6 md:mb-7 max-w-4xl mx-auto leading-snug md:leading-relaxed">
+          <p className="text-lg md:text-xl lg:text-2xl text-brand-dark-gray mb-3 md:mb-6 max-w-4xl mx-auto leading-snug md:leading-relaxed">
             <span className="underline">Prod-ready</span> SaaS boilerplate with auth, stripe, world class ui, and <span className="bg-brand-highlight px-2 rounded-lg">everything</span> you need to launch fast. Skip weeks of setup pain, no headaches - <span className="font-bold">just launch</span>.
           </p>
 
           {/* Logos */}
-          <div className="mb-6 md:mb-7">
+          <div className="mb-4 md:mb-7">
             <img 
               src="/logoss.png" 
               alt="Technology logos" 
