@@ -48,10 +48,16 @@ const GitHubUsername = () => {
         .select('*')
         .eq('id', orderId)
         .eq('email', email)
-        .single();
+        .maybeSingle();
 
-      if (fetchError || !data) {
+      if (fetchError) {
         console.error('Order verification failed:', fetchError);
+        setError('Failed to verify order - please try again');
+        return;
+      }
+
+      if (!data) {
+        console.error('No order found for:', { email, orderId });
         setError('Order not found or invalid link');
         return;
       }
