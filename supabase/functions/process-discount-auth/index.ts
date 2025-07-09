@@ -12,6 +12,25 @@ const logStep = (step: string, details?: any) => {
   console.log(`[PROCESS-DISCOUNT-AUTH] ${step}${detailsStr}`);
 };
 
+// Background task to add user to newsletter
+const addToNewsletter = async (email: string, supabaseClient: any) => {
+  try {
+    logStep("Starting background newsletter signup", { email });
+    
+    const { data, error } = await supabaseClient.functions.invoke('add-to-newsletter', {
+      body: { email }
+    });
+
+    if (error) {
+      logStep("Newsletter signup failed", { error });
+    } else {
+      logStep("Newsletter signup completed", { data });
+    }
+  } catch (error) {
+    logStep("Newsletter signup error", { error: error.message });
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -69,6 +88,9 @@ serve(async (req) => {
     }
 
     logStep("Successfully created/updated discount record", { userId: upsertedUser.id });
+
+    // Add to newsletter in background (fire-and-forget)
+    EdgeRuntime.waitUntil(addToNewsletter(user.email, supabaseClient));
 
     return new Response(JSON.stringify({ 
       success: true, 
