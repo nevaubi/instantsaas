@@ -39,12 +39,13 @@ serve(async (req) => {
     
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Extract Twitter username from user metadata
-    const twitterUsername = user.user_metadata?.user_name || 
-                           user.user_metadata?.preferred_username ||
-                           user.user_metadata?.screen_name;
+    // Extract Google user information from user metadata
+    const googleUserId = user.user_metadata?.sub || user.user_metadata?.provider_id;
+    const googleUsername = user.user_metadata?.full_name || 
+                          user.user_metadata?.name ||
+                          user.email?.split('@')[0];
     
-    logStep("Twitter username extracted", { twitterUsername });
+    logStep("Google user info extracted", { googleUserId, googleUsername });
 
     // Check if user already exists in discounted_users
     const { data: existingUser } = await supabaseClient
@@ -71,7 +72,7 @@ serve(async (req) => {
       .insert({
         user_id: user.id,
         email: user.email,
-        twitter_username: twitterUsername,
+        twitter_username: googleUsername, // Store Google username in twitter_username field for now
         subscribe_status: 'pending',
         updated_at: new Date().toISOString(),
       })
