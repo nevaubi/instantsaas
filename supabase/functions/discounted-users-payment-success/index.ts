@@ -16,6 +16,11 @@ const logStep = (step: string, details?: any) => {
   console.log(`[DISCOUNTED-USERS-PAYMENT-SUCCESS] ${step}${detailsStr}`);
 };
 
+const isMobileUserAgent = (req: Request): boolean => {
+  const userAgent = req.headers.get("user-agent") || "";
+  return /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -23,7 +28,8 @@ serve(async (req) => {
 
   try {
     const { sessionId } = await req.json();
-    logStep("Processing payment success for session", { sessionId });
+    const isMobile = isMobileUserAgent(req);
+    logStep("Processing payment success for session", { sessionId, isMobile });
 
     if (!sessionId) {
       throw new Error("Session ID is required");
@@ -43,7 +49,7 @@ serve(async (req) => {
       throw new Error("Payment not completed");
     }
 
-    logStep("Payment confirmed for session", { sessionId });
+    logStep("Payment confirmed for session", { sessionId, isMobile });
 
     // Get the customer's email from Stripe
     const customerEmail = session.customer_details?.email || session.customer_email;
@@ -52,7 +58,7 @@ serve(async (req) => {
       throw new Error("No customer email found in Stripe session");
     }
 
-    logStep("Customer email from Stripe", { email: customerEmail });
+    logStep("Customer email from Stripe", { email: customerEmail, isMobile });
 
     // Create Supabase client with service role key
     const supabaseService = createClient(
@@ -61,8 +67,11 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
+    let finalUserData = null;
+
     // First, try to find the record by session ID (most reliable)
-    const { data: discountedUserData, error: updateError } = await supabaseService
+    logStep("Attempting to find record by session ID", { sessionId });
+    const { data: sessionData, error: sessionError } = await supabaseService
       .from("discounted_users")
       .update({
         amount: 39.00, // Fixed amount for discounted users
@@ -72,18 +81,27 @@ serve(async (req) => {
       })
       .eq("stripe_checkout_session_id", sessionId)
       .select()
-      .maybeSingle(); // Use maybeSingle to handle cases where no record is found
+      .maybeSingle();
 
-    if (updateError) {
-      logStep("Database update error", { error: updateError });
-      throw new Error(`Failed to update discounted user status: ${updateError.message}`);
+    if (sessionError) {
+      logStep("Database update error (session ID)", { error: sessionError, isMobile });
+      throw new Error(`Failed to update discounted user status by session ID: ${sessionError.message}`);
     }
 
-    if (!discountedUserData) {
+    if (sessionData) {
+      logStep("Successfully updated record by session ID", { recordId: sessionData.id, isMobile });
+      finalUserData = sessionData;
+    } else {
       // If no record found by session ID, try to find by email as fallback
-      logStep("No record found by session ID, trying by email", { customerEmail });
+      logStep("No record found by session ID, trying by email fallback", { customerEmail, isMobile });
       
-      const { data: fallbackData, error: fallbackError } = await supabaseService
+      // Add small delay for mobile to handle potential timing issues
+      if (isMobile) {
+        logStep("Mobile detected, adding delay before email fallback");
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+      const { data: emailData, error: emailError } = await supabaseService
         .from("discounted_users")
         .update({
           amount: 39.00,
@@ -96,28 +114,30 @@ serve(async (req) => {
         .select()
         .maybeSingle();
 
-      if (fallbackError) {
-        logStep("Fallback update error", { error: fallbackError });
-        throw new Error(`Failed to update discounted user by email: ${fallbackError.message}`);
+      if (emailError) {
+        logStep("Fallback update error", { error: emailError, isMobile });
+        throw new Error(`Failed to update discounted user by email: ${emailError.message}`);
       }
 
-      if (!fallbackData) {
+      if (!emailData) {
+        logStep("No record found by email either", { customerEmail, isMobile });
         throw new Error("No discounted user record found for this payment");
       }
 
-      logStep("Updated discounted user record via email fallback", { recordId: fallbackData.id });
-      
-      // Use fallback data for the rest of the process
-      const discountedUserData = fallbackData;
-    } else {
-      logStep("Discounted user status updated to paid", { recordId: discountedUserData.id });
+      logStep("Updated discounted user record via email fallback", { recordId: emailData.id, isMobile });
+      finalUserData = emailData;
     }
 
-    // Use the correct data reference
-    const finalUserData = discountedUserData;
+    // Validate that we have the final user data
+    if (!finalUserData || !finalUserData.id) {
+      logStep("ERROR: Final user data is invalid", { finalUserData, isMobile });
+      throw new Error("Failed to retrieve valid user data after update");
+    }
+
+    logStep("Final user data confirmed", { recordId: finalUserData.id, email: customerEmail, isMobile });
 
     // Automatically trigger Zapier webhook
-    logStep("Triggering Zapier webhook", { webhook: ZAPIER_WEBHOOK_URL });
+    logStep("Triggering Zapier webhook", { webhook: ZAPIER_WEBHOOK_URL, isMobile });
     
     const zapierPayload = {
       order_id: finalUserData.id,
@@ -131,7 +151,8 @@ serve(async (req) => {
       template_description: "Production-ready SaaS boilerplate with 40% discount",
       github_username: finalUserData.github_username || "",
       twitter_username: finalUserData.twitter_username || "",
-      github_setup_url: `https://instantsaas.dev/github-username?email=${encodeURIComponent(customerEmail)}&order_id=${finalUserData.id}`
+      github_setup_url: `https://instantsaas.dev/github-username?email=${encodeURIComponent(customerEmail)}&order_id=${finalUserData.id}`,
+      is_mobile: isMobile
     };
 
     try {
@@ -143,7 +164,7 @@ serve(async (req) => {
         body: JSON.stringify(zapierPayload),
       });
 
-      logStep("Zapier webhook response", { status: zapierResponse.status });
+      logStep("Zapier webhook response", { status: zapierResponse.status, isMobile });
 
       // Update delivery status to indicate webhook was triggered
       await supabaseService
@@ -154,9 +175,9 @@ serve(async (req) => {
         })
         .eq("id", finalUserData.id);
 
-      logStep("Template delivery triggered successfully");
+      logStep("Template delivery triggered successfully", { isMobile });
     } catch (zapierError) {
-      logStep("Zapier webhook error", { error: zapierError });
+      logStep("Zapier webhook error", { error: zapierError, isMobile });
       // Don't throw error here, just log it - payment was successful
     }
 
@@ -165,6 +186,7 @@ serve(async (req) => {
         success: true,
         message: "Payment processed and template delivery triggered",
         discountedUser: finalUserData,
+        mobile_detected: isMobile,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -172,7 +194,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    logStep("ERROR", { message: error.message });
+    logStep("ERROR", { message: error.message, stack: error.stack });
     return new Response(
       JSON.stringify({
         error: error.message,
