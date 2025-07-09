@@ -28,7 +28,12 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center h-16">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 flex items-center">
+            <img 
+              src="/lightning.png" 
+              alt="InstantSaaS Logo" 
+              className="h-8 w-8 mr-3"
+            />
             <span className="text-2xl font-bold text-brand-dark-gray">
               InstantSaaS
             </span>
