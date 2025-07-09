@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -60,7 +61,7 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
-    // Update discounted_users record with payment details and status
+    // First, try to find the record by session ID (most reliable)
     const { data: discountedUserData, error: updateError } = await supabaseService
       .from("discounted_users")
       .update({
@@ -71,20 +72,55 @@ serve(async (req) => {
       })
       .eq("stripe_checkout_session_id", sessionId)
       .select()
-      .single();
+      .maybeSingle(); // Use maybeSingle to handle cases where no record is found
 
     if (updateError) {
       logStep("Database update error", { error: updateError });
-      throw new Error("Failed to update discounted user status");
+      throw new Error(`Failed to update discounted user status: ${updateError.message}`);
     }
 
-    logStep("Discounted user status updated to paid");
+    if (!discountedUserData) {
+      // If no record found by session ID, try to find by email as fallback
+      logStep("No record found by session ID, trying by email", { customerEmail });
+      
+      const { data: fallbackData, error: fallbackError } = await supabaseService
+        .from("discounted_users")
+        .update({
+          amount: 39.00,
+          currency: "usd",
+          delivery_status: "paid",
+          stripe_checkout_session_id: sessionId, // Update with the session ID
+          updated_at: new Date().toISOString(),
+        })
+        .eq("email", customerEmail)
+        .select()
+        .maybeSingle();
+
+      if (fallbackError) {
+        logStep("Fallback update error", { error: fallbackError });
+        throw new Error(`Failed to update discounted user by email: ${fallbackError.message}`);
+      }
+
+      if (!fallbackData) {
+        throw new Error("No discounted user record found for this payment");
+      }
+
+      logStep("Updated discounted user record via email fallback", { recordId: fallbackData.id });
+      
+      // Use fallback data for the rest of the process
+      const discountedUserData = fallbackData;
+    } else {
+      logStep("Discounted user status updated to paid", { recordId: discountedUserData.id });
+    }
+
+    // Use the correct data reference
+    const finalUserData = discountedUserData;
 
     // Automatically trigger Zapier webhook
     logStep("Triggering Zapier webhook", { webhook: ZAPIER_WEBHOOK_URL });
     
     const zapierPayload = {
-      order_id: discountedUserData.id,
+      order_id: finalUserData.id,
       email: customerEmail,
       amount: 39.00, // Fixed amount for discounted template
       currency: "usd",
@@ -93,9 +129,9 @@ serve(async (req) => {
       payment_date: new Date().toISOString(),
       template_name: "Discounted_SaaS_Template",
       template_description: "Production-ready SaaS boilerplate with 40% discount",
-      github_username: discountedUserData.github_username || "",
-      twitter_username: discountedUserData.twitter_username || "",
-      github_setup_url: `https://instantsaas.dev/github-username?email=${encodeURIComponent(customerEmail)}&order_id=${discountedUserData.id}`
+      github_username: finalUserData.github_username || "",
+      twitter_username: finalUserData.twitter_username || "",
+      github_setup_url: `https://instantsaas.dev/github-username?email=${encodeURIComponent(customerEmail)}&order_id=${finalUserData.id}`
     };
 
     try {
@@ -116,7 +152,7 @@ serve(async (req) => {
           delivery_status: "webhook_triggered",
           updated_at: new Date().toISOString(),
         })
-        .eq("id", discountedUserData.id);
+        .eq("id", finalUserData.id);
 
       logStep("Template delivery triggered successfully");
     } catch (zapierError) {
@@ -128,7 +164,7 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         message: "Payment processed and template delivery triggered",
-        discountedUser: discountedUserData,
+        discountedUser: finalUserData,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

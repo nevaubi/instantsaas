@@ -47,49 +47,33 @@ serve(async (req) => {
     
     logStep("Google user info extracted", { googleUserId, googleUsername });
 
-    // Check if user already exists in discounted_users
-    const { data: existingUser } = await supabaseClient
+    // Use UPSERT to prevent duplicates - insert or update existing record
+    const { data: upsertedUser, error: upsertError } = await supabaseClient
       .from("discounted_users")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-
-    if (existingUser) {
-      logStep("User already exists in discounted_users", { existingUserId: existingUser.id });
-      return new Response(JSON.stringify({ 
-        success: true, 
-        message: "User already recorded",
-        user_id: existingUser.id 
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
-    }
-
-    // Insert new discounted user record
-    const { data: newUser, error: insertError } = await supabaseClient
-      .from("discounted_users")
-      .insert({
+      .upsert({
         user_id: user.id,
         email: user.email,
         twitter_username: googleUsername, // Store Google username in twitter_username field for now
         subscribe_status: 'pending',
         updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'user_id',
+        ignoreDuplicates: false
       })
       .select()
       .single();
 
-    if (insertError) {
-      logStep("Error inserting user", { error: insertError });
-      throw new Error(`Failed to create discount record: ${insertError.message}`);
+    if (upsertError) {
+      logStep("Error upserting user", { error: upsertError });
+      throw new Error(`Failed to create/update discount record: ${upsertError.message}`);
     }
 
-    logStep("Successfully created discount record", { newUserId: newUser.id });
+    logStep("Successfully created/updated discount record", { userId: upsertedUser.id });
 
     return new Response(JSON.stringify({ 
       success: true, 
       message: "Discount user recorded successfully",
-      user_id: newUser.id 
+      user_id: upsertedUser.id 
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

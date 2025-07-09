@@ -104,21 +104,24 @@ serve(async (req) => {
       discountsApplied: discounts.length > 0 
     });
 
-    // Update the discounted_users record with checkout session ID
-    const { error: updateError } = await supabaseClient
+    // Update the specific discounted_users record with checkout session ID
+    // Since we now have unique constraint on user_id, this will update exactly one record
+    const { data: updatedRecord, error: updateError } = await supabaseClient
       .from("discounted_users")
       .update({
         stripe_checkout_session_id: session.id,
         stripe_customer_id: customerId,
         updated_at: new Date().toISOString(),
       })
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .select()
+      .single();
 
     if (updateError) {
       logStep("Error updating discount record", { error: updateError });
       // Don't fail the request, just log the error
     } else {
-      logStep("Updated discount record with checkout session");
+      logStep("Updated discount record with checkout session", { recordId: updatedRecord.id });
     }
 
     return new Response(JSON.stringify({ url: session.url }), {
